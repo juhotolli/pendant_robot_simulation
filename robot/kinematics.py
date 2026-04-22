@@ -9,7 +9,9 @@
 import math
 
 class HolonomicKinematics:
-    def __init__(self, dt=0.1):
+    def __init__(self, dt):
+        if dt <= 0:
+            raise ValueError("dt must be positive")
         self.dt = dt
 
     def update(self, state):

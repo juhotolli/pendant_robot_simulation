@@ -5,30 +5,26 @@
 import time
 
 class SafetyMonitor:
-    def __init__(self, timeout=0.5):
+    def __init__(self, timeout):
+        if timeout <= 0:
+            raise ValueError("Timeout must be positive")
         self.timeout = timeout  # seconds
-        self.last_msg_time = None
 
-    def update_timestamp(self):
-        self.last_msg_time = time.time()
-
-    def is_connection_alive(self):
-        if self.last_msg_time is None:
+    def is_connection_alive(self, net):
+        last_time = net.get_last_receive_time()
+        if last_time is None:
             return False
-        return (time.time() - self.last_msg_time) < self.timeout
+        return (time.time() - last_time) < self.timeout
 
-    def apply(self, cmd, state):
+    def apply(self, cmd, state, net):
 
         # No command received yet
         if cmd is None:
             state.stop()
             return
 
-        # Update timestamp (message received)
-        self.update_timestamp()
-
         # Connection lost
-        if not self.is_connection_alive():
+        if not self.is_connection_alive(net):
             state.stop()
             return
 

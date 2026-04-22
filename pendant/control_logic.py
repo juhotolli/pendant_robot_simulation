@@ -3,7 +3,9 @@
 # which processes the input state and applies any necessary transformations or limits before sending it to the robot.
 
 class ControlLogic:
-    def __init__(self, max_speed=5.0):
+    def __init__(self, max_speed):
+        if max_speed <= 0:
+            raise ValueError("max_speed must be positive")
         self.max_speed = max_speed
 
     def process(self, state):

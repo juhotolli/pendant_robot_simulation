@@ -15,12 +15,15 @@ from safety import Safety
 from control_logic import ControlLogic
 from message_builder import MessageBuilder
 
+# Configuration constants
+MAX_SPEED = 5.0
+
 def main():
     sender = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     input_handler = InputHandler()
     safety = Safety()
-    control = ControlLogic(max_speed=5.0)
+    control = ControlLogic(max_speed=MAX_SPEED)
     builder = MessageBuilder()
 
     while True:

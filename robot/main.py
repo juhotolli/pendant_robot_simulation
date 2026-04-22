@@ -11,20 +11,26 @@ from kinematics import HolonomicKinematics
 from safety import SafetyMonitor
 import time
 
+# Configuration constants
+HOST = "0.0.0.0"
+PORT = 5005
+TIMEOUT = 0.5
+DT = 0.1
+
 def main():
-    net = NetworkReceiver(port=5005)
+    net = NetworkReceiver(host=HOST, port=PORT)
     net.start()
 
     state = RobotState()
-    kinematics = HolonomicKinematics(dt=0.1)
-    safety = SafetyMonitor(timeout=0.5)
+    kinematics = HolonomicKinematics(dt=DT)
+    safety = SafetyMonitor(timeout=TIMEOUT)
     viz = Visualizer()
 
     while True:
         cmd = net.get_latest_command()
 
         # Apply safety logic
-        safety.apply(cmd, state)
+        safety.apply(cmd, state, net)
 
         # Update robot motion
         kinematics.update(state)
@@ -33,7 +39,7 @@ def main():
         safety_state = {
             "deadman": cmd.get("deadman", False) if cmd else False,
             "estop": cmd.get("estop", False) if cmd else False,
-            "connected": safety.is_connection_alive()
+            "connected": safety.is_connection_alive(net)
         }
         # Visualize
         viz.update(state, safety_state)

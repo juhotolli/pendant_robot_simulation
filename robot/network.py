@@ -9,9 +9,10 @@
 import socket
 import json
 import threading
+import time
 
 class NetworkReceiver:
-    def __init__(self, host="0.0.0.0", port=5005):
+    def __init__(self, host, port):
         self.host = host
         self.port = port
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -19,6 +20,7 @@ class NetworkReceiver:
 
         self.latest_command = None
         self.lock = threading.Lock()
+        self.last_receive_time = None
 
         self.running = True
 
@@ -38,6 +40,7 @@ class NetworkReceiver:
 
                 with self.lock:
                     self.latest_command = cmd
+                    self.last_receive_time = time.time()
 
             except Exception as e:
                 print(f"[Network] Error: {e}")
@@ -45,6 +48,10 @@ class NetworkReceiver:
     def get_latest_command(self):
         with self.lock:
             return self.latest_command
+
+    def get_last_receive_time(self):
+        with self.lock:
+            return self.last_receive_time
 
     def stop(self):
         self.running = False
